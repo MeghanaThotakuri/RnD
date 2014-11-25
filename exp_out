@@ -1,0 +1,100 @@
+and ...ops	... done
+and ...instypes	... done
+and ...nonterms	... done
+and ...terms	... done
+and ...rules	... done
+and ............ done
+#include <iostream>
+ #include <cstdio>
+ #include "iburg.h"
+#include <limits.h>
+ #include <stdlib.h>
+ #define PANIC printf 
+#define MAX 33333333
+#define nonterms 2
+#define terms 7
+#define nt_stmt 1
+#define nt_reg 2
+string a_nonterminal[] = 
+ {
+ 	 "" ,
+ 	 "stmt" ,
+ 	 "reg" ,
+ };
+
+string a_terminal[] = 
+{
+	"",
+	"ASSGN",
+	"PLUS",
+	"MINUS",
+	"MULT",
+	"DIV",
+	"CON",
+};
+
+set<string> nonterminal;
+set<string> terminal;
+bool isterminal(string s){	return (terminal.count(s)==1); }
+bool isnonterminal(string s){	return (nonterminal.count(s)==1); }
+void state_label(Tree * p){
+(p->state).cost.resize(nonterms,MAX);
+(p->state).rule.resize(nonterms,-1);
+string op = p->node;
+int c;
+if(op=="ASSGN")
+	c=0 + (p->right->state).cost[nt_ADDR] + 1;
+	if(p->left->node == "ADDR" && c < (p->state).cost[nt_stmt]){
+		(p->state).cost[nt_stmt] = c;
+		(p->state).rule[nt_stmt] = 1;
+		closure(&p->state, nt_stmt);
+	}
+}
+if(op=="PLUS")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 2;
+		closure(&p->state, nt_reg);
+	}
+}
+if(op=="MINUS")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 3;
+		closure(&p->state, nt_reg);
+	}
+}
+if(op=="PLUS")
+	c=(p->left->state).cost[nt_reg] + 0 + 1;
+	if(p->right->node == "CON" && c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 4;
+		closure(&p->state, nt_reg);
+	}
+}
+if(op=="CON")
+	c=0 + 0 + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 5;
+		closure(&p->state, nt_reg);
+	}
+}
+if(op=="ADDR")
+	c=0 + 0 + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 6;
+		closure(&p->state, nt_reg);
+	}
+}
+}
+
+void label(Tree * p){
+	if(p == NULL) PANIC("null tree");
+	if(p->left != NULL) label(p->left);
+	if(p->right != NULL) label(p->right);
+	state_label(p);
+}

@@ -1,0 +1,289 @@
+and ...ops	... done
+and ...instypes	... done
+and ...nonterms	... done
+and ...terms	... done
+and ...rules	... done
+and ............ done
+#include <iostream>
+ #include <cstdio>
+ #include "iburg.h"
+#include <limits.h>
+ #include <stdlib.h>
+ #define PANIC printf 
+#define MAX 33333333
+#define nonterms 5
+#define terms 19
+#define nt_stmt 1
+#define nt_reg 2
+#define nt_regf 3
+#define nt_cndtnl_goto 4
+#define nt_uncndtnl_goto 5
+string a_nonterminal[] = 
+ {
+ 	 "" ,
+ 	 "stmt" ,
+ 	 "reg" ,
+ 	 "regf" ,
+ 	 "cndtnl_goto" ,
+ 	 "uncndtnl_goto" ,
+ };
+
+string a_terminal[] = 
+{
+	"",
+	"ASSGN",
+	"PLUS",
+	"MINUS",
+	"MULT",
+	"DIV",
+	"UMINUS",
+	"LT",
+	"GT",
+	"NE",
+	"GE",
+	"LE",
+	"EQ",
+	"CON",
+	"CONF",
+	"ADDR",
+	"INT",
+	"FLOAT",
+	"IF",
+};
+
+set<string> nonterminal;
+set<string> terminal;
+bool isterminal(string s){	return (terminal.count(s)==1); }
+bool isnonterminal(string s){	return (nonterminal.count(s)==1); }
+void state_label(Tree * p){
+(p->state).cost.resize(nonterms,MAX);
+(p->state).rule.resize(nonterms,-1);
+string op = p->node;
+int c;
+if(op=="IF")
+	c=(p->left->state).cost[nt_cndtnl_goto] + (p->right->state).cost[nt_cndtnl_goto] + 1;
+	if(c < (p->state).cost[nt_stmt]){
+		(p->state).cost[nt_stmt] = c;
+		(p->state).rule[nt_stmt] = 1;
+	}
+}
+if(op=="GOTO")
+	c=(p->left->state).cost[nt_reg] + 0 + 1;
+	if(p->right->node == "CON" && c < (p->state).cost[nt_cndtnl_goto]){
+		(p->state).cost[nt_cndtnl_goto] = c;
+		(p->state).rule[nt_cndtnl_goto] = 2;
+	}
+}
+if(op=="GOTO")
+	c=0 + 0 + 1;
+	if(p->left->node == "CON" && c < (p->state).cost[nt_uncndtnl_goto]){
+		(p->state).cost[nt_uncndtnl_goto] = c;
+		(p->state).rule[nt_uncndtnl_goto] = 3;
+	}
+}
+if(op=="ASSGN")
+	c=0 + (p->right->state).cost[nt_ADDR] + 1;
+	if(p->left->node == "ADDR" && c < (p->state).cost[nt_stmt]){
+		(p->state).cost[nt_stmt] = c;
+		(p->state).rule[nt_stmt] = 4;
+	}
+}
+if(op=="ASSGN")
+	c=0 + (p->right->state).cost[nt_ADDR] + 1;
+	if(p->left->node == "ADDR" && c < (p->state).cost[nt_stmt]){
+		(p->state).cost[nt_stmt] = c;
+		(p->state).rule[nt_stmt] = 5;
+	}
+}
+if(op=="PLUS")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 6;
+	}
+}
+if(op=="MINUS")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 7;
+	}
+}
+if(op=="MULT")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 8;
+	}
+}
+if(op=="DIV")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 9;
+	}
+}
+if(op=="UMINUS")
+	c=(p->left->state).cost[nt_reg] + 0 + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 10;
+	}
+}
+if(op=="PLUS")
+	c=(p->left->state).cost[nt_regf] + (p->right->state).cost[nt_regf] + 1;
+	if(c < (p->state).cost[nt_regf]){
+		(p->state).cost[nt_regf] = c;
+		(p->state).rule[nt_regf] = 11;
+	}
+}
+if(op=="MINUS")
+	c=(p->left->state).cost[nt_regf] + (p->right->state).cost[nt_regf] + 1;
+	if(c < (p->state).cost[nt_regf]){
+		(p->state).cost[nt_regf] = c;
+		(p->state).rule[nt_regf] = 12;
+	}
+}
+if(op=="MULT")
+	c=(p->left->state).cost[nt_regf] + (p->right->state).cost[nt_regf] + 1;
+	if(c < (p->state).cost[nt_regf]){
+		(p->state).cost[nt_regf] = c;
+		(p->state).rule[nt_regf] = 13;
+	}
+}
+if(op=="DIV")
+	c=(p->left->state).cost[nt_regf] + (p->right->state).cost[nt_regf] + 1;
+	if(c < (p->state).cost[nt_regf]){
+		(p->state).cost[nt_regf] = c;
+		(p->state).rule[nt_regf] = 14;
+	}
+}
+if(op=="UMINUS")
+	c=(p->left->state).cost[nt_regf] + 0 + 1;
+	if(c < (p->state).cost[nt_regf]){
+		(p->state).cost[nt_regf] = c;
+		(p->state).rule[nt_regf] = 15;
+	}
+}
+if(op=="LT")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 16;
+	}
+}
+if(op=="GT")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 17;
+	}
+}
+if(op=="LE")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 18;
+	}
+}
+if(op=="GE")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 19;
+	}
+}
+if(op=="NE")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 20;
+	}
+}
+if(op=="EQ")
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 21;
+	}
+}
+if(op=="CON")
+	c=0 + 0 + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 22;
+	}
+}
+if(op=="CONF")
+	c=0 + 0 + 1;
+	if(c < (p->state).cost[nt_regf]){
+		(p->state).cost[nt_regf] = c;
+		(p->state).rule[nt_regf] = 23;
+	}
+}
+if(op=="FLOAT")
+	c=(p->left->state).cost[nt_reg] + 0 + 1;
+	if(c < (p->state).cost[nt_regf]){
+		(p->state).cost[nt_regf] = c;
+		(p->state).rule[nt_regf] = 24;
+	}
+}
+if(op=="INT")
+	c=(p->left->state).cost[nt_regf] + 0 + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 25;
+	}
+}
+if(op=="ADDR")
+	c=0 + 0 + 1;
+	if(c < (p->state).cost[nt_reg]){
+		(p->state).cost[nt_reg] = c;
+		(p->state).rule[nt_reg] = 26;
+	}
+}
+if(op=="ADDR")
+	c=0 + 0 + 1;
+	if(c < (p->state).cost[nt_regf]){
+		(p->state).cost[nt_regf] = c;
+		(p->state).rule[nt_regf] = 27;
+	}
+}
+}
+
+void label(Tree * p){
+	if(p == NULL) PANIC("null tree");
+	if(p->left != NULL) label(p->left);
+	if(p->right != NULL) label(p->right);
+	state_label(p);
+}
+void initialize(){
+	nonterminal.insert(a_nonterminal, a_nonterminal+nonterms);
+	terminal.insert(a_terminal, a_terminal+terms);
+}
+Tree * create_tree(string t_name, Tree * t_left, Tree * t_right){
+Tree * tree = new Tree();
+tree->node = t_name;
+tree->left = t_left;
+tree->right = t_right;
+tree->value = "";
+return tree;
+}
+Tree * create_tree(string t_name, Tree * t_left, Tree * t_right,string t_val){
+Tree * tree = new Tree();
+	tree->node = t_name;
+ tree->left = t_left;
+ tree->right = t_right;
+ tree->value = t_val;
+ return tree;
+}
+
+
+int main() {
+		initialize();
+	Tree * p;
+	 p = create_tree(... , ... , ...);
+	label(p);
+	print(p);
+	return 0;
+}

@@ -1,0 +1,71 @@
+
+enum assembly_format
+{
+	op,				/* Only the operator, no operand */
+	op_r,			/* No operands, eg. goto L */
+	op_r_o1,		/* One operand, eg. op r, o1 */
+	op_r_o1_o2,		/* Two operands, eg. op r, o1, o2 */ 
+	op_nsy			/* not specified yet */
+};
+
+set<string> Operators;		/* to store all the feasible operators */
+
+class Instruction
+{
+	string op;
+	assembly_format af;
+	string assembly_mnemonic;
+};
+
+map<string, Instruction> instruction_map;	/* map to store all the feasible instructions (operator <-> instruction) */ 
+
+
+class Terminal
+{
+	string name;		/* terminal name */
+	int number;		/* identifying number */
+	int arity;		/* operator arity */				
+					/**** dont know whether i should add this or not as there is a terminal which has 2 arity's (GOTO) ****/
+};
+
+map<string, Terminal> terminal_map;
+
+class Nonterminal: public Node
+{
+	string name;		/* terminal name */
+	int number;		/* identifying number */
+	list<string> values;  /*values it can take */
+};
+
+std::map<string, Nonterminal> nonterminal_map;
+
+class Tree 
+{
+	string node;		/* non-terminal/terminal which is the root of this tree */
+	Tree* left, right;	/* operands */
+};
+
+enum Order
+{
+	result_left_right,
+	result_right_left,
+	result_left,
+	result_right,
+	left_right,
+	right_left,
+	left,
+	right,
+	result
+};
+
+class Rule {		/* rules: */
+	string lhs;		/* lefthand side non-terminal */
+	Tree pattern;	/* rule pattern */
+	int number;		/* rule number */
+	int cost;		/* associated cost */
+	string instr;	/* correspondng machine instruction operator */
+	Order args_order	/* order of arguments of the machine instruction to be generated */
+	
+};
+
+std::set<Rule> rules;

@@ -1,0 +1,10 @@
+%%		
+	no_instruction
+	load
+	imm_load
+	store
+  	add
+  	sub
+  	mul
+  	div 
+ %%
