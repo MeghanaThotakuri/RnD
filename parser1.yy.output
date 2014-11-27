@@ -1,0 +1,373 @@
+[[parser1.yy (info)] Line 113: 
+Production Rules
+(rule precedences determined from %prec or 1st terminal between parentheses):
+1: gramm (PPERCENT) ->  PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT
+2: #0001 ->  <empty>
+3: #0002 ->  <empty>
+4: #0003 ->  <empty>
+5: #0004 ->  <empty>
+6: #0005 ->  <empty>
+7: ops ->  <empty>
+8: ops (ID) ->  ops ID
+9: instypes ->  <empty>
+10: instypes (ID) ->  instypes ID '=' ID ',' ID
+11: nonterms ->  <empty>
+12: nonterms (ID) ->  nonterms ID '=' ID
+13: nonterms (ID) ->  nonterms ID '=' nontermvalues
+14: nontermvalues ('{') ->  '{' values '}'
+15: nontermvalues ('{') ->  '{' '}'
+16: terms (ID) ->  ID
+17: terms (',') ->  terms ',' ID
+18: rules ->  <empty>
+19: rules (ID) ->  rules ID ':' tree '=' cost '{' values '}'
+20: values (ID) ->  ID
+21: values (',') ->  values ',' ID
+22: cost ->  <empty>
+23: cost ('(') ->  '(' NUM ')'
+24: tree (ID) ->  ID
+25: tree (ID) ->  ID '(' tree ')'
+26: tree (ID) ->  ID '(' tree ',' tree ')'
+27: gramm_$ ->  gramm
+
+[[parser1.yy (info)] 
+Symbolic Terminal tokens:
+       error
+       EOF
+   257: NUM
+   258: ID
+   259: PPERCENT
+    61: '='
+    44: ','
+   123: '{'
+   125: '}'
+    58: ':'
+    40: '('
+    41: ')'
+
+[[parser1.yy (info)] 
+Grammar States: 
+[[parser1.yy (info)] State 0:
+27: gramm_$ ->  . gramm 
+  0:   On gramm to state 1
+  1:   On PPERCENT to state 2
+
+
+State 1:
+27: gramm_$ -> gramm  . 
+
+
+State 2:
+1: gramm -> PPERCENT  . ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT 
+  0:   On ops to state 3
+  Reduce by 7: ops ->  . 
+
+
+State 3:
+1: gramm -> PPERCENT ops  . #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT 
+8: ops -> ops  . ID 
+  0:   On #0001 to state 4
+  1:   On ID to state 5
+  Reduce by 2: #0001 ->  . 
+
+
+State 4:
+1: gramm -> PPERCENT ops #0001  . PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT 
+  0:   On PPERCENT to state 6
+
+
+State 5:
+8: ops -> ops ID  . 
+  Reduce by 8: ops -> ops ID  . 
+
+
+State 6:
+1: gramm -> PPERCENT ops #0001 PPERCENT  . instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT 
+  0:   On instypes to state 7
+  Reduce by 9: instypes ->  . 
+
+
+State 7:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes  . #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT 
+10: instypes -> instypes  . ID '=' ID ',' ID 
+  0:   On #0002 to state 8
+  1:   On ID to state 9
+  Reduce by 3: #0002 ->  . 
+
+
+State 8:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002  . PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT 
+  0:   On PPERCENT to state 10
+
+
+State 9:
+10: instypes -> instypes ID  . '=' ID ',' ID 
+  0:   On '=' to state 11
+
+
+State 10:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT  . nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT 
+  0:   On nonterms to state 12
+  Reduce by 11: nonterms ->  . 
+
+
+State 11:
+10: instypes -> instypes ID '='  . ID ',' ID 
+  0:   On ID to state 13
+
+
+State 12:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms  . #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT 
+12: nonterms -> nonterms  . ID '=' ID 
+13: nonterms -> nonterms  . ID '=' nontermvalues 
+  0:   On #0003 to state 14
+  1:   On ID to state 15
+  Reduce by 4: #0003 ->  . 
+
+
+State 13:
+10: instypes -> instypes ID '=' ID  . ',' ID 
+  0:   On ',' to state 16
+
+
+State 14:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003  . PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT 
+  0:   On PPERCENT to state 17
+
+
+State 15:
+12: nonterms -> nonterms ID  . '=' ID 
+13: nonterms -> nonterms ID  . '=' nontermvalues 
+  0:   On '=' to state 18
+
+
+State 16:
+10: instypes -> instypes ID '=' ID ','  . ID 
+  0:   On ID to state 19
+
+
+State 17:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT  . terms #0004 PPERCENT rules #0005 PPERCENT 
+  0:   On terms to state 20
+  1:   On ID to state 21
+
+
+State 18:
+12: nonterms -> nonterms ID '='  . ID 
+13: nonterms -> nonterms ID '='  . nontermvalues 
+  0:   On ID to state 22
+  1:   On nontermvalues to state 23
+  2:   On '{' to state 24
+
+
+State 19:
+10: instypes -> instypes ID '=' ID ',' ID  . 
+  Reduce by 10: instypes -> instypes ID '=' ID ',' ID  . 
+
+
+State 20:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms  . #0004 PPERCENT rules #0005 PPERCENT 
+17: terms -> terms  . ',' ID 
+  0:   On #0004 to state 25
+  1:   On ',' to state 26
+  Reduce by 5: #0004 ->  . 
+
+
+State 21:
+16: terms -> ID  . 
+  Reduce by 16: terms -> ID  . 
+
+
+State 22:
+12: nonterms -> nonterms ID '=' ID  . 
+  Reduce by 12: nonterms -> nonterms ID '=' ID  . 
+
+
+State 23:
+13: nonterms -> nonterms ID '=' nontermvalues  . 
+  Reduce by 13: nonterms -> nonterms ID '=' nontermvalues  . 
+
+
+State 24:
+14: nontermvalues -> '{'  . values '}' 
+15: nontermvalues -> '{'  . '}' 
+  0:   On values to state 27
+  1:   On '}' to state 28
+  2:   On ID to state 29
+
+
+State 25:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004  . PPERCENT rules #0005 PPERCENT 
+  0:   On PPERCENT to state 30
+
+
+State 26:
+17: terms -> terms ','  . ID 
+  0:   On ID to state 31
+
+
+State 27:
+14: nontermvalues -> '{' values  . '}' 
+21: values -> values  . ',' ID 
+  0:   On '}' to state 32
+  1:   On ',' to state 33
+
+
+State 28:
+15: nontermvalues -> '{' '}'  . 
+  Reduce by 15: nontermvalues -> '{' '}'  . 
+
+
+State 29:
+20: values -> ID  . 
+  Reduce by 20: values -> ID  . 
+
+
+State 30:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT  . rules #0005 PPERCENT 
+  0:   On rules to state 34
+  Reduce by 18: rules ->  . 
+
+
+State 31:
+17: terms -> terms ',' ID  . 
+  Reduce by 17: terms -> terms ',' ID  . 
+
+
+State 32:
+14: nontermvalues -> '{' values '}'  . 
+  Reduce by 14: nontermvalues -> '{' values '}'  . 
+
+
+State 33:
+21: values -> values ','  . ID 
+  0:   On ID to state 35
+
+
+State 34:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules  . #0005 PPERCENT 
+19: rules -> rules  . ID ':' tree '=' cost '{' values '}' 
+  0:   On #0005 to state 36
+  1:   On ID to state 37
+  Reduce by 6: #0005 ->  . 
+
+
+State 35:
+21: values -> values ',' ID  . 
+  Reduce by 21: values -> values ',' ID  . 
+
+
+State 36:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005  . PPERCENT 
+  0:   On PPERCENT to state 38
+
+
+State 37:
+19: rules -> rules ID  . ':' tree '=' cost '{' values '}' 
+  0:   On ':' to state 39
+
+
+State 38:
+1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT  . 
+  Reduce by 1: gramm -> PPERCENT ops #0001 PPERCENT instypes #0002 PPERCENT nonterms #0003 PPERCENT terms #0004 PPERCENT rules #0005 PPERCENT  . 
+
+
+State 39:
+19: rules -> rules ID ':'  . tree '=' cost '{' values '}' 
+  0:   On tree to state 40
+  1:   On ID to state 41
+
+
+State 40:
+19: rules -> rules ID ':' tree  . '=' cost '{' values '}' 
+  0:   On '=' to state 42
+
+
+State 41:
+24: tree -> ID  . 
+25: tree -> ID  . '(' tree ')' 
+26: tree -> ID  . '(' tree ',' tree ')' 
+  0:   On '(' to state 43
+  Reduce by 24: tree -> ID  . 
+
+
+State 42:
+19: rules -> rules ID ':' tree '='  . cost '{' values '}' 
+  0:   On cost to state 44
+  1:   On '(' to state 45
+  Reduce by 22: cost ->  . 
+
+
+State 43:
+25: tree -> ID '('  . tree ')' 
+26: tree -> ID '('  . tree ',' tree ')' 
+  0:   On tree to state 46
+  1:   On ID to state 41
+
+
+State 44:
+19: rules -> rules ID ':' tree '=' cost  . '{' values '}' 
+  0:   On '{' to state 47
+
+
+State 45:
+23: cost -> '('  . NUM ')' 
+  0:   On NUM to state 48
+
+
+State 46:
+25: tree -> ID '(' tree  . ')' 
+26: tree -> ID '(' tree  . ',' tree ')' 
+  0:   On ')' to state 49
+  1:   On ',' to state 50
+
+
+State 47:
+19: rules -> rules ID ':' tree '=' cost '{'  . values '}' 
+  0:   On values to state 51
+  1:   On ID to state 29
+
+
+State 48:
+23: cost -> '(' NUM  . ')' 
+  0:   On ')' to state 52
+
+
+State 49:
+25: tree -> ID '(' tree ')'  . 
+  Reduce by 25: tree -> ID '(' tree ')'  . 
+
+
+State 50:
+26: tree -> ID '(' tree ','  . tree ')' 
+  0:   On tree to state 53
+  1:   On ID to state 41
+
+
+State 51:
+19: rules -> rules ID ':' tree '=' cost '{' values  . '}' 
+21: values -> values  . ',' ID 
+  0:   On '}' to state 54
+  1:   On ',' to state 33
+
+
+State 52:
+23: cost -> '(' NUM ')'  . 
+  Reduce by 23: cost -> '(' NUM ')'  . 
+
+
+State 53:
+26: tree -> ID '(' tree ',' tree  . ')' 
+  0:   On ')' to state 55
+
+
+State 54:
+19: rules -> rules ID ':' tree '=' cost '{' values '}'  . 
+  Reduce by 19: rules -> rules ID ':' tree '=' cost '{' values '}'  . 
+
+
+State 55:
+26: tree -> ID '(' tree ',' tree ')'  . 
+  Reduce by 26: tree -> ID '(' tree ',' tree ')'  . 
+
+
+

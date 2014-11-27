@@ -15,7 +15,6 @@
 #define nt_reg 2
 
 int begin_nt = 1;
-
 memorylocation memloc;
 
 Tree * create_tree(string t_name){
@@ -37,7 +36,7 @@ Tree * create_tree(string t_name, Tree * t_left, Tree * t_right){
 }
 
 Tree * create_tree(string t_name, Tree * t_left, Tree * t_right,string t_val){
-	Tree * tree = new Tree();
+Tree * tree = new Tree();
 	tree->node = t_name;
  tree->left = t_left;
  tree->right = t_right;
@@ -45,19 +44,17 @@ Tree * create_tree(string t_name, Tree * t_left, Tree * t_right,string t_val){
  return tree;
 }
 
+
 map<string, Instruction> instruction_map;
 vector<stack<string> > nonterminal_values;
-
-Instruction create_instruction(string t_op, assembly_format t_af, string t_am)
-{
-	Instruction ins;
-	ins.oper = t_op;
-	ins.af = t_af;
-	ins.assembly_mnemonic = t_am;
-	instruction_map.insert(make_pair(t_op,ins));
-	return ins;
+Instruction create_instruction(string t_op, assembly_format t_af, string t_am){
+		Instruction ins;
+		ins.oper = t_op;
+		ins.af = t_af;
+		ins.assembly_mnemonic = t_am;
+		instruction_map.insert(make_pair(t_op,ins));
+		return ins;
 }
-
 string a_nonterminal[] = 
  {
  	 "" ,
@@ -79,33 +76,34 @@ string a_terminal[] =
 
 int a_nt_values_count[]=
 {
-	0,
-	2,
-	2,
+	0, 	0, 	10, 
 };
-
-
 void fill_nonterminals(){
 	nonterminal_values.resize(nonterms+1);
-	nonterminal_values[1].push("s1");
-	nonterminal_values[1].push("s2");
-	nonterminal_values[2].push("r1");
+	nonterminal_values[2].push("r10");
+	nonterminal_values[2].push("r9");
+	nonterminal_values[2].push("r8");
+	nonterminal_values[2].push("r7");
+	nonterminal_values[2].push("r6");
+	nonterminal_values[2].push("r5");
+	nonterminal_values[2].push("r4");
+	nonterminal_values[2].push("r3");
 	nonterminal_values[2].push("r2");
+	nonterminal_values[2].push("r1");
 }
 
-void fill_instructions()
-{
-	create_instruction("add",(assembly_format)2,"add");
-	create_instruction("addi", (assembly_format)2,"addi");
-	create_instruction("load", (assembly_format)2,"lw");
+void fill_instructions(){
+	create_instruction("add", (assembly_format)3,"add");
+	create_instruction("addi", (assembly_format)3,"addi");
 	create_instruction("imm_load", (assembly_format)2,"li");
+	create_instruction("load", (assembly_format)2,"lw");
+	create_instruction("no_instruction", (assembly_format)4,"n");
 	create_instruction("store", (assembly_format)2,"sw");
+	create_instruction("sub", (assembly_format)3,"sub");
 }
-
 
 set<string> nonterminal;
 set<string> terminal;
-
 map<string, int> nonterminal_map;
 bool isterminal(string s){	return (terminal.count(s)==1); }
 bool isnonterminal(string s){	return (nonterminal.count(s)==1); }
@@ -125,36 +123,24 @@ return r;
 void fill_rules(){
 	Rule strt;
 	rules.push_back(strt);
-	rules.push_back(create_rule("stmt",*create_tree("ASSGN",create_tree("stmt"),create_tree("reg")),1,1,"store",(Order)5));
-	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("reg")),2,1,"add",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("MINUS",create_tree("reg"),create_tree("reg")),3,1,"sub",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("CON")),4,1,"addi",(Order)0));
-	rules.push_back(create_rule("stmt",*create_tree("reg"),5,1,"lw",(Order)2));
-	rules.push_back(create_rule("reg",*create_tree("CON"),6,1,"imm_load",(Order)6));
-	rules.push_back(create_rule("reg",*create_tree("ADDR"),7,1,"load",(Order)2));
+	rules.push_back(create_rule("stmt",*create_tree("ASSGN",create_tree("ADDR"),create_tree("reg")),1,10,"store",(Order)5));
+	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("reg")),2,10,"add",(Order)0));
+	rules.push_back(create_rule("reg",*create_tree("MINUS",create_tree("reg"),create_tree("reg")),3,10,"sub",(Order)0));
+	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("CON")),4,10,"addi",(Order)0));
+	rules.push_back(create_rule("reg",*create_tree("CON"),5,10,"imm_load",(Order)6));
+	rules.push_back(create_rule("reg",*create_tree("ADDR"),6,10,"load",(Order)6));
 }
-
 
 void initialize(){
 	nonterminal.insert(a_nonterminal, a_nonterminal+nonterms+1);
-	for (int i = 1; i <= nonterms; ++i)
-	{
-		nonterminal_map.insert(make_pair(a_nonterminal[i],i));
-	}
+for (int i = 1; i <= nonterms; ++i)	nonterminal_map.insert(make_pair(a_nonterminal[i],i));
 	terminal.insert(a_terminal, a_terminal+terms+1);
 	fill_rules();
 	fill_nonterminals();
 	fill_instructions();
 }
 
-void closure_reg(State *);
 
-void closure_reg(State * st){
-	 if(st->cost[nt_reg]+1 < st->cost[nt_stmt]){
-		 st->cost[nt_stmt] = st->cost[nt_reg]+1;
-		 st->rule[nt_stmt] = 5;
-	}
-}
 
 void state_label(Tree * p){
 (p->state).cost.resize(nonterms+1,MAX);
@@ -163,57 +149,45 @@ string op = p->node;
 int c;
 
 if(op=="ASSGN"){
-	c=(p->left->state).cost[nt_stmt] + (p->right->state).cost[nt_reg] + 1;
-	if(c < (p->state).cost[nt_stmt]){
+	c=0 + (p->right->state).cost[nt_reg] + 10;
+	if(p->left->node == "ADDR" && c < (p->state).cost[nt_stmt]){
 		(p->state).cost[nt_stmt] = c;
 		(p->state).rule[nt_stmt] = 1;
 	}
 }
 if(op=="PLUS"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
 		(p->state).rule[nt_reg] = 2;
-		closure_reg(&p->state);
 	}
 }
 if(op=="MINUS"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
 		(p->state).rule[nt_reg] = 3;
-		closure_reg(&p->state);
 	}
 }
 if(op=="PLUS"){
-	c=(p->left->state).cost[nt_reg] + 0 + 1;
+	c=(p->left->state).cost[nt_reg] + 0 + 10;
 	if(p->right->node == "CON" && c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
 		(p->state).rule[nt_reg] = 4;
-		closure_reg(&p->state);
-	}
-}
-if(op=="reg"){
-	c=0 + 0 + 1;
-	if(c < (p->state).cost[nt_stmt]){
-		(p->state).cost[nt_stmt] = c;
-		(p->state).rule[nt_stmt] = 5;
 	}
 }
 if(op=="CON"){
-	c=0 + 0 + 1;
+	c=0 + 0 + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 6;
-		closure_reg(&p->state);
+		(p->state).rule[nt_reg] = 5;
 	}
 }
 if(op=="ADDR"){
-	c=0 + 0 + 1;
+	c=0 + 0 + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 7;
-		closure_reg(&p->state);
+		(p->state).rule[nt_reg] = 6;
 	}
 }
 }
@@ -224,8 +198,6 @@ void label(Tree * p){
 	if(p->right != NULL) label(p->right);
 	state_label(p);
 }
-
-
 void pick_instr(Tree * p, int result_nt){
 	int rno = (p->state).rule[result_nt];
 	p->picked_instruction.push_back(rno);
@@ -243,8 +215,7 @@ if(t.node == p->node){
 		if(a_nonterminal[i]==nt){pick_instr(p->right, i); break;}
 	}
 	}
-}
-else{
+}else{
 	for (int i = 1; i <= nonterms; ++i){
 		if(t.node == a_nonterminal[i]) {pick_instr(p,i); return;}
 	}
@@ -256,52 +227,42 @@ void su_number(Tree * p)
 	p->nt_reqd.resize(nonterms+1,0);
 	p->store_reqd.resize(nonterms+1,false);
 	int rno=0;
-    for (std::list<int>::iterator i = p->picked_instruction.begin(); i != p->picked_instruction.end(); ++i)
-   	{rno = *i;}
+    for (std::list<int>::iterator i = p->picked_instruction.begin(); i != p->picked_instruction.end(); ++i) rno = *i;
     if(rno == 0) return;
 	Tree t = rules[rno].pattern;
-	if(t.left==NULL && t.right==NULL)
-	{
-		for (int i = 1; i <= nonterms; ++i)
-		{
+	if(t.left==NULL && t.right==NULL){
+		for (int i = 1; i <= nonterms; ++i){
 			if(a_nonterminal[i] == rules[rno].lhs) p->nt_reqd[i]=1;
 			else if(t.node == a_nonterminal[i]) p->nt_reqd[i]=1;
 		}
 	}
-	else if(t.right==NULL)
-	{
+	else if(t.right==NULL){
 		su_number(p->left);
-		for (int i = 1; i <= nonterms; ++i)
-		{
+		for (int i = 1; i <= nonterms; ++i){
 			p->nt_reqd[i]=p->left->nt_reqd[i];
 			if(rules[rno].lhs == a_nonterminal[i] && p->nt_reqd[i]==0) p->nt_reqd[i]++; 
 		}
 	}
-	else
-	{
+	else{
 		su_number(p->left);
 		su_number(p->right);
-		for (int i = 1; i <= nonterms; ++i)
-		{
+		for (int i = 1; i <= nonterms; ++i){
 			p->nt_reqd[i] = max(p->left->nt_reqd[i], p->right->nt_reqd[i]);
 			if(p->left->nt_reqd[i] == p->right->nt_reqd[i] && p->left->nt_reqd[i] != 0) {
 				p->nt_reqd[i]++;
-				if(a_nt_values_count[i] < p->nt_reqd[i]) {p->left->store_reqd[i] = true; p->nt_reqd[i]--;}
+				if(a_nt_values_count[i] < p->nt_reqd[i]) {p->left->store_reqd[i] = true; p->nt_reqd[i]--; p->left->nt_reqd[i]=1;}
 			}
 			if(rules[rno].lhs == a_nonterminal[i] && p->nt_reqd[i]==0) p->nt_reqd[i]++;
 		}
 	}
 
-	for (std::list<int>::iterator i = p->picked_instruction.begin(); i != p->picked_instruction.end(); ++i)
-   	{
+	for (std::list<int>::iterator i = p->picked_instruction.begin(); i != p->picked_instruction.end(); ++i)	{
    		if(*i == rno) break;
-   		for (int j = 1; j <= nonterms; ++j)
-   		{
+   		for (int j = 1; j <= nonterms; ++j){
    			if(a_nonterminal[j]==rules[*i].lhs && p->nt_reqd[j]==0) p->nt_reqd[j]++;
    		}
    	}
 }
-
 
 string get_val(string nt_type)
 {
@@ -323,20 +284,18 @@ void gencode1(Tree * p)
 	bool startone = true;
 	int rno=0;
 	if(p==NULL) return;
-	else if(p->picked_instruction.empty()) {p->result = p->value; p->code_generated=true;}
-	else if(p->result_computed_by_store == true)
-	{
+	else if(p->picked_instruction.empty()) {p->result = p->value; p->code_generated=true; return;}
+	else if(p->result_computed_by_store == true){
 		string res_val = get_val(rules[*(p->picked_instruction.begin())].lhs);
 		cout<<"mv "<<res_val<<", "<<p->result<<endl;
 		memloc.free_memory_location(p->result);
 		p->result = res_val;
 		p->result_computed_by_store = false;
+		return;
 	}
-	for (std::list<int>::reverse_iterator rit=p->picked_instruction.rbegin(); rit!=p->picked_instruction.rend(); ++rit)
-	{
+	for (std::list<int>::reverse_iterator rit=p->picked_instruction.rbegin(); rit!=p->picked_instruction.rend(); ++rit){
 		Rule r = rules[*rit];
-		if(startone == true)
-		{
+		if(startone == true){
 			startone = false;
 			if(r.args_order==_none)
 			{
@@ -420,13 +379,22 @@ void gencode1(Tree * p)
 				if(r.pattern.left->node == r.pattern.right->node)
 				{
 					int nt_index = nonterminal_map[r.pattern.left->node];
-					if(p->left->nt_reqd[nt_index] < p->right->nt_reqd[nt_index])
+					if(p->left->nt_reqd[nt_index] < p->right->nt_reqd[nt_index]){
 					gencode1(p->right);
 					gencode1(p->left);
 					if(r.pattern.left != NULL && isnonterminal(r.pattern.left->node))
 						release_nt_val(p->left->result, r.pattern.left->node); 
 					if(r.pattern.right != NULL && isnonterminal(r.pattern.right->node))
 						release_nt_val(p->right->result, r.pattern.right->node);
+					}
+					else{
+					gencode1(p->left);
+					gencode1(p->right);
+					if(r.pattern.right != NULL && isnonterminal(r.pattern.right->node))
+						release_nt_val(p->right->result, r.pattern.right->node); 
+					if(r.pattern.left != NULL && isnonterminal(r.pattern.left->node))
+						release_nt_val(p->left->result, r.pattern.left->node); 
+					}
 				}
 				else
 				{
@@ -459,8 +427,7 @@ void gencode1(Tree * p)
 				}
 			}
 		}
-		else
-		{
+		else{
 			string res_val = get_val(r.lhs);
 			cout<<instruction_map[r.instr].assembly_mnemonic<<" "<<res_val<<", "<<p->result<<endl;
 			release_nt_val(p->result, r.pattern.node); 
@@ -475,9 +442,9 @@ void gencode_store(Tree * p)
 		gencode1(p);
 		string res_mem_val = memloc.get_memory_location(nonterminal_map[rules[*(p->picked_instruction.begin())].lhs]);
 		cout<<"mv "<<res_mem_val<<", "<<p->result<<endl;
+		release_nt_val(p->result, rules[*(p->picked_instruction.begin())].lhs); 
 		p->result = res_mem_val;
 		p->result_computed_by_store = true;
-		release_nt_val(p->result, rules[*(p->picked_instruction.begin())].lhs); 
 	}
 }
 
@@ -489,11 +456,8 @@ void check_and_generate_stores(Tree * p)
 	check_and_generate_stores(p->left);
 	check_and_generate_stores(p->right);
 	for (int i = 1; i <= nonterms; ++i)
-	{
 		if(p->store_reqd[i]) gencode_store(p);
-	}
 }
-
 
 void gencode(Tree * p)
 {
@@ -533,6 +497,11 @@ void printsu(Tree * p)
 	{
 		cout<<" "<<p->nt_reqd[i];
 	}
+	cout<<"\t\t";
+	for (int i = 1; i <= nonterms; ++i)
+	{
+		cout<<" "<<p->store_reqd[i];
+	}
 	cout<<endl;
 	printsu(p->left);
 	printsu(p->right);
@@ -542,39 +511,43 @@ int main() {
 	initialize();
 	Tree * p;
 
-	// p = create_tree("ASSGN",
-	// 		create_tree("CON",NULL,NULL,"meg"), 
-	// 		create_tree("PLUS", 
-	// 			create_tree("PLUS", 
-	// 				create_tree("PLUS", 
-	// 					create_tree("CON", NULL,NULL,"a"), 
-	// 					create_tree("CON", NULL,NULL,"b")), 
-	// 				create_tree("PLUS", 
-	// 					create_tree("CON", NULL,NULL,"c"), 
-	// 					create_tree("CON", NULL,NULL,"d"))),
-	// 			create_tree("PLUS", 
-	// 				create_tree("PLUS", 
-	// 					create_tree("CON", NULL,NULL,"e"), 
-	// 					create_tree("CON", NULL,NULL,"f")), 
-	// 				create_tree("PLUS", 
-	// 					create_tree("CON", NULL,NULL,"g"), 
-	// 					create_tree("CON", NULL,NULL,"h")))));
-
 
 	p = create_tree("ASSGN",
-			create_tree("ADDR",NULL,NULL,"d"), 
+		create_tree("ADDR",NULL,NULL,"fp[10]"), 
+		create_tree("PLUS", 
 			create_tree("PLUS", 
-				create_tree("CON", NULL,NULL,"a"), 
-				create_tree("CON", NULL,NULL,"b")));
+				create_tree("PLUS", 
+					create_tree("CON", NULL,NULL,"a"), 
+					create_tree("CON", NULL,NULL,"b")), 
+				create_tree("PLUS", 
+					create_tree("CON", NULL,NULL,"c"), 
+					create_tree("CON", NULL,NULL,"d"))),
+			create_tree("PLUS", 
+				create_tree("PLUS", 
+					create_tree("CON", NULL,NULL,"e"), 
+					create_tree("CON", NULL,NULL,"f")), 
+				create_tree("PLUS", 
+					create_tree("CON", NULL,NULL,"g"), 
+					create_tree("CON", NULL,NULL,"h")))));
 
+	cout<<"The numbering of nodes for instruction selection"<<endl;
 	label(p);
-	cout<<"labelled"<<endl;
 	print(p);
+	cout<<endl;
+
+	cout<<"Instructions selected at each node"<<endl;
 	pick_instr(p,begin_nt);
 	printin(p);
+	cout<<endl;
+
+	cout<<"Sethi Ullman numbering of each node along with the requirement of store(rightnost numbers)"<<endl;
 	su_number(p);
 	printsu(p);
+	cout<<endl;
+
+	cout<<"Code generated is "<<endl;
 	gencode(p);
+	cout<<endl;
 
 	return 0;
 }

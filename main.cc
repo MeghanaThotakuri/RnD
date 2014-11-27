@@ -273,7 +273,7 @@ void emitdatastructures()
 	cout<<"void fill_nonterminals(){\n\tnonterminal_values.resize(nonterms+1);\n";
 	for (int i = 1; i <= non_terminal_count; ++i)
 	{
-		for (int j = 0; j < nonterminal_map[a_nonterms[i]].values.size(); ++j)
+		for (int j =  nonterminal_map[a_nonterms[i]].values.size()-1; j >= 0; j--)
 		{
 			cout<<"\tnonterminal_values["<<i<<"].push(\""<<nonterminal_map[a_nonterms[i]].values[j]<<"\");\n";
 		}

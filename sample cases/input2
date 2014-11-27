@@ -6,8 +6,6 @@
   	add
   	addi
   	sub
-  	mul
-  	div 
  %%
 	no_instruction  =	op_nsy, n 
 	load =   			op_r_o1, lw
@@ -16,11 +14,9 @@
 	add =    			op_r_o1_o2, add
 	addi =    			op_r_o1_o2, addi
 	sub =    			op_r_o1_o2, sub
-	mul =    			op_r_o1_o2, mul
-	div =    			op_r_o1_o2, div
 %%
 	stmt = BEGIN
-	reg = {r1,r2,r3,r4,r5,r6,r7,r8,r9,r10}
+	reg = {r1,r2}
 %%
 	ASSGN, PLUS, MINUS, MULT, DIV, CON, ADDR
 %%

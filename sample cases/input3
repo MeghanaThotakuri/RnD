@@ -1,34 +1,4 @@
-/****************************************************************************************
-Input should contain
-	Total number of available registers 
-	Instruction tree grammar where for each instruction we have 
-		the instruction 
-		cost
-		the corresponding machine code to be generated 
-
-$$ - root
-$1 - left subtree
-$2 - right subtree
-CON - integer constant
-CONF - constant which is float
-ADDR - variable
-INT - integer typecast
-FLOAT - float typecast
-
-
-I have a list of all the values each of the non terminals can take.
-Allotting them appropriately is the task of the c++ code
-that we generate for code generation.
-
-In the grammar, along with each rule, the operation it corresponds to and the parameters in the corresponding 
-instruction are also given in the order they are to be printed in the instruction. 
-ex {add, result, param1, param2} for "add $result, $param1, $prama2"
-
-
-*****************************************************************************************/
-
-%%	
-\* Operators *\
+%%
 	
 	no_instruction
 	load
@@ -61,17 +31,8 @@ ex {add, result, param1, param2} for "add $result, $param1, $prama2"
   	uminus_d
 
 %%
-/*
-	Operator : assembly_format, assembly_mnemonic 
-assembly formats ::
-	op,				/* Only the operator, no operand */
-	op_r,			/* No operands, eg. goto L */
-	op_r_o1,		/* One operand, eg. op r, o1 */
-	op_r_o1_o2,		/* Two operands, eg. op r, o1, o2 */ 
-	op_nsy			/* not specified yet */
 
-*/
-	no_instruction  =	op_nsy, -
+	no_instruction  =	op_nsy, _
 	load =    			op_r_o1, lw
 	imm_load =		    op_r_o1, li
 	store =  			op_r_o1, sw
@@ -81,7 +42,7 @@ assembly formats ::
 	sle =    			op_r_o1_o2, sle
 	seq =    			op_r_o1_o2, seq
 	sne =    			op_r_o1_o2, sne
-	if_else =    		op_r_o1_o2, bne
+	if_else =    		op_r_o1, bne
 	goto_type =    		op_r, j
 	add =    			op_r_o1_o2, add
 	sub =    			op_r_o1_o2, sub
@@ -102,38 +63,23 @@ assembly formats ::
 	uminus_d =    		op_r_o1, neg.d
 
 %%
-/* Values non terminals take */
 
 	stmt = BEGIN
 	reg = {r1,r2,r3,r4,r5,r6,r7,r8,r9,r10}
 	regf = {f1,f2,f3,f4,f5,f6}
-	conditional_goto = {}
-	unconditional_goto = {}
-
+	cndtnl_goto = {}
+	uncndtnl_goto = {}
 %%
-/* List of terminals */
-
 	ASSGN, PLUS, MINUS, MULT, DIV,
-	UMINUS, LT, GT, NE, GE, LE,
+	UMINUS, LT, GT, NE, GE, LE, EQ,
 	CON, CONF, ADDR, INT, FLOAT,
 	IF, GOTO
-
 %%
-/* tree grammar
-	cover : node (l-op, r-op) = (cost) {operand corresponding the machine instruction, r, o1, o2} 
-	
-	$$ - result non terminal
-	$1 - left operand 
-	$2 - right operand */
-
-	stmt: IF(cndtnl_goto, uncndtnl_goto) = (0)	{no_instruction}
-
-	cndtnl_goto : GOTO(reg , CON) = (1)   {if_else, $1, $zero, $2}
+	stmt : IF(cndtnl_goto, uncndtnl_goto) = (1)	{no_instruction}
+	cndtnl_goto : GOTO(reg , CON) = (1)   {if_else, $1, $2}
 	uncndtnl_goto : GOTO(CON)   = (1)    {goto_type, $1}
-
 	stmt: ASSGN(ADDR,reg)	= (1)	{store, $2, $1}
 	stmt: ASSGN(ADDR,regf)	= (1)	{store_d, $2, $1}
-
 	reg: PLUS(reg,reg)	= (1)	{add, $$,$1,$2}
 	reg: MINUS(reg,reg)	= (1)	{sub, $$,$1,$2}
 	reg: MULT(reg,reg)  = (1)		{mul, $$,$1,$2}
@@ -153,13 +99,13 @@ assembly formats ::
 	reg: NE(reg,reg)	= (1)	{sne, $$,$1,$2}
 	reg: EQ(reg,reg)	= (1)	{seq, $$,$1,$2}
 
-	reg: CON 	= (1)		{imm_load, $$, $1}
-	regf: CONF	= (1)		{load_d, $$, $1}
+	reg: CON 	= (1)		{imm_load, $$, $0}
+	regf: CONF	= (1)		{load_d, $$, $0}
 
-	regf: FLOAT(reg)	= (1)	{mtc, $$, $1}
-	reg: INT(regf)		= (1)	{mfc, $$, $1}
+	regf: FLOAT(reg)	= (1)	{mtc1, $$, $1}
+	reg: INT(regf)		= (1)	{mfc1, $$, $1}
 
-	reg: ADDR 		= (1)	{load, $$, $1}
-	regf: ADDR 		= (1)	{load_d, $$, $1}
+	reg: ADDR 		= (1)	{load, $$, $0}
+	regf: ADDR 		= (1)	{load_d, $$, $0s}
 
 %%

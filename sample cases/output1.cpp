@@ -8,14 +8,11 @@
 #define PANIC printf 
 
 #define MAX 33333333
-#define nonterms 5
-#define terms 19
+#define nonterms 2
+#define terms 7
 
 #define nt_stmt 1
 #define nt_reg 2
-#define nt_regf 3
-#define nt_cndtnl_goto 4
-#define nt_uncndtnl_goto 5
 
 int begin_nt = 1;
 memorylocation memloc;
@@ -63,9 +60,6 @@ string a_nonterminal[] =
  	 "" ,
  	 "stmt" ,
  	 "reg" ,
- 	 "regf" ,
- 	 "cndtnl_goto" ,
- 	 "uncndtnl_goto" ,
  };
 
 string a_terminal[] = 
@@ -76,76 +70,36 @@ string a_terminal[] =
 	"MINUS",
 	"MULT",
 	"DIV",
-	"UMINUS",
-	"LT",
-	"GT",
-	"NE",
-	"GE",
-	"LE",
-	"EQ",
 	"CON",
-	"CONF",
 	"ADDR",
-	"INT",
-	"FLOAT",
-	"IF",
-	"GOTO",
 };
 
 int a_nt_values_count[]=
 {
-	0, 	0, 	10, 	6, 	0, 	0, 
+	0, 	0, 	10, 
 };
 void fill_nonterminals(){
 	nonterminal_values.resize(nonterms+1);
-	nonterminal_values[2].push("r1");
-	nonterminal_values[2].push("r2");
-	nonterminal_values[2].push("r3");
-	nonterminal_values[2].push("r4");
-	nonterminal_values[2].push("r5");
-	nonterminal_values[2].push("r6");
-	nonterminal_values[2].push("r7");
-	nonterminal_values[2].push("r8");
-	nonterminal_values[2].push("r9");
 	nonterminal_values[2].push("r10");
-	nonterminal_values[3].push("f1");
-	nonterminal_values[3].push("f2");
-	nonterminal_values[3].push("f3");
-	nonterminal_values[3].push("f4");
-	nonterminal_values[3].push("f5");
-	nonterminal_values[3].push("f6");
+	nonterminal_values[2].push("r9");
+	nonterminal_values[2].push("r8");
+	nonterminal_values[2].push("r7");
+	nonterminal_values[2].push("r6");
+	nonterminal_values[2].push("r5");
+	nonterminal_values[2].push("r4");
+	nonterminal_values[2].push("r3");
+	nonterminal_values[2].push("r2");
+	nonterminal_values[2].push("r1");
 }
 
 void fill_instructions(){
 	create_instruction("add", (assembly_format)3,"add");
-	create_instruction("add_d", (assembly_format)3,"add.d");
-	create_instruction("div", (assembly_format)3,"div");
-	create_instruction("div_d", (assembly_format)3,"div.d");
-	create_instruction("goto_type", (assembly_format)1,"j");
-	create_instruction("if_else", (assembly_format)3,"bne");
+	create_instruction("addi", (assembly_format)3,"addi");
 	create_instruction("imm_load", (assembly_format)2,"li");
-	create_instruction("imm_load_d", (assembly_format)2,"li.d");
 	create_instruction("load", (assembly_format)2,"lw");
-	create_instruction("load_d", (assembly_format)2,"lw.d");
-	create_instruction("mfc1", (assembly_format)2,"mfc");
-	create_instruction("move", (assembly_format)2,"mv");
-	create_instruction("move_d", (assembly_format)2,"mv.d");
-	create_instruction("mtc1", (assembly_format)2,"mtc");
-	create_instruction("mul", (assembly_format)3,"mul");
-	create_instruction("mul_d", (assembly_format)3,"mul.d");
-	create_instruction("no_instruction", (assembly_format)4,"_");
-	create_instruction("seq", (assembly_format)3,"seq");
-	create_instruction("sge", (assembly_format)3,"sge");
-	create_instruction("sgt", (assembly_format)3,"sgt");
-	create_instruction("sle", (assembly_format)3,"sle");
-	create_instruction("slt", (assembly_format)3,"slt");
-	create_instruction("sne", (assembly_format)3,"sne");
+	create_instruction("no_instruction", (assembly_format)4,"n");
 	create_instruction("store", (assembly_format)2,"sw");
-	create_instruction("store_d", (assembly_format)2,"sw.d");
 	create_instruction("sub", (assembly_format)3,"sub");
-	create_instruction("sub_d", (assembly_format)3,"sub.d");
-	create_instruction("uminus", (assembly_format)2,"neg");
-	create_instruction("uminus_d", (assembly_format)2,"neg.d");
 }
 
 set<string> nonterminal;
@@ -169,33 +123,12 @@ return r;
 void fill_rules(){
 	Rule strt;
 	rules.push_back(strt);
-	rules.push_back(create_rule("stmt",*create_tree("IF",create_tree("cndtnl_goto"),create_tree("uncndtnl_goto")),1,1,"no_instruction",(Order)10));
-	rules.push_back(create_rule("cndtnl_goto",*create_tree("GOTO",create_tree("reg"),create_tree("CON")),2,1,"if_else",(Order)4));
-	rules.push_back(create_rule("uncndtnl_goto",*create_tree("GOTO",create_tree("CON"),NULL),3,1,"goto_type",(Order)7));
-	rules.push_back(create_rule("stmt",*create_tree("ASSGN",create_tree("ADDR"),create_tree("reg")),4,1,"store",(Order)5));
-	rules.push_back(create_rule("stmt",*create_tree("ASSGN",create_tree("ADDR"),create_tree("regf")),5,1,"store_d",(Order)5));
-	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("reg")),6,1,"add",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("MINUS",create_tree("reg"),create_tree("reg")),7,1,"sub",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("MULT",create_tree("reg"),create_tree("reg")),8,1,"mul",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("DIV",create_tree("reg"),create_tree("reg")),9,1,"div",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("UMINUS",create_tree("reg"),NULL),10,1,"uminus",(Order)2));
-	rules.push_back(create_rule("regf",*create_tree("PLUS",create_tree("regf"),create_tree("regf")),11,1,"add_d",(Order)0));
-	rules.push_back(create_rule("regf",*create_tree("MINUS",create_tree("regf"),create_tree("regf")),12,1,"sub_d",(Order)0));
-	rules.push_back(create_rule("regf",*create_tree("MULT",create_tree("regf"),create_tree("regf")),13,1,"mul_d",(Order)0));
-	rules.push_back(create_rule("regf",*create_tree("DIV",create_tree("regf"),create_tree("regf")),14,1,"div_d",(Order)0));
-	rules.push_back(create_rule("regf",*create_tree("UMINUS",create_tree("regf"),NULL),15,1,"uminus_d",(Order)2));
-	rules.push_back(create_rule("reg",*create_tree("LT",create_tree("reg"),create_tree("reg")),16,1,"slt",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("GT",create_tree("reg"),create_tree("reg")),17,1,"sgt",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("LE",create_tree("reg"),create_tree("reg")),18,1,"sle",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("GE",create_tree("reg"),create_tree("reg")),19,1,"sge",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("NE",create_tree("reg"),create_tree("reg")),20,1,"sne",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("EQ",create_tree("reg"),create_tree("reg")),21,1,"seq",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("CON"),22,1,"imm_load",(Order)6));
-	rules.push_back(create_rule("regf",*create_tree("CONF"),23,1,"load_d",(Order)6));
-	rules.push_back(create_rule("regf",*create_tree("FLOAT",create_tree("reg"),NULL),24,1,"mtc1",(Order)2));
-	rules.push_back(create_rule("reg",*create_tree("INT",create_tree("regf"),NULL),25,1,"mfc1",(Order)2));
-	rules.push_back(create_rule("reg",*create_tree("ADDR"),26,1,"load",(Order)6));
-	rules.push_back(create_rule("regf",*create_tree("ADDR"),27,1,"load_d",(Order)0));
+	rules.push_back(create_rule("stmt",*create_tree("ASSGN",create_tree("ADDR"),create_tree("reg")),1,10,"store",(Order)5));
+	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("reg")),2,10,"add",(Order)0));
+	rules.push_back(create_rule("reg",*create_tree("MINUS",create_tree("reg"),create_tree("reg")),3,10,"sub",(Order)0));
+	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("CON")),4,10,"addi",(Order)0));
+	rules.push_back(create_rule("reg",*create_tree("CON"),5,10,"imm_load",(Order)6));
+	rules.push_back(create_rule("reg",*create_tree("ADDR"),6,10,"load",(Order)6));
 }
 
 void initialize(){
@@ -215,193 +148,46 @@ void state_label(Tree * p){
 string op = p->node;
 int c;
 
-if(op=="IF"){
-	c=(p->left->state).cost[nt_cndtnl_goto] + (p->right->state).cost[nt_uncndtnl_goto] + 1;
-	if(c < (p->state).cost[nt_stmt]){
+if(op=="ASSGN"){
+	c=0 + (p->right->state).cost[nt_reg] + 10;
+	if(p->left->node == "ADDR" && c < (p->state).cost[nt_stmt]){
 		(p->state).cost[nt_stmt] = c;
 		(p->state).rule[nt_stmt] = 1;
 	}
 }
-if(op=="GOTO"){
-	c=(p->left->state).cost[nt_reg] + 0 + 1;
-	if(p->right->node == "CON" && c < (p->state).cost[nt_cndtnl_goto]){
-		(p->state).cost[nt_cndtnl_goto] = c;
-		(p->state).rule[nt_cndtnl_goto] = 2;
-	}
-}
-if(op=="GOTO"){
-	c=0 + 0 + 1;
-	if(p->left->node == "CON" && c < (p->state).cost[nt_uncndtnl_goto]){
-		(p->state).cost[nt_uncndtnl_goto] = c;
-		(p->state).rule[nt_uncndtnl_goto] = 3;
-	}
-}
-if(op=="ASSGN"){
-	c=0 + (p->right->state).cost[nt_reg] + 1;
-	if(p->left->node == "ADDR" && c < (p->state).cost[nt_stmt]){
-		(p->state).cost[nt_stmt] = c;
-		(p->state).rule[nt_stmt] = 4;
-	}
-}
-if(op=="ASSGN"){
-	c=0 + (p->right->state).cost[nt_regf] + 1;
-	if(p->left->node == "ADDR" && c < (p->state).cost[nt_stmt]){
-		(p->state).cost[nt_stmt] = c;
-		(p->state).rule[nt_stmt] = 5;
-	}
-}
 if(op=="PLUS"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 6;
+		(p->state).rule[nt_reg] = 2;
 	}
 }
 if(op=="MINUS"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
+	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 7;
-	}
-}
-if(op=="MULT"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
-	if(c < (p->state).cost[nt_reg]){
-		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 8;
-	}
-}
-if(op=="DIV"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
-	if(c < (p->state).cost[nt_reg]){
-		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 9;
-	}
-}
-if(op=="UMINUS"){
-	c=(p->left->state).cost[nt_reg] + 0 + 1;
-	if(c < (p->state).cost[nt_reg]){
-		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 10;
+		(p->state).rule[nt_reg] = 3;
 	}
 }
 if(op=="PLUS"){
-	c=(p->left->state).cost[nt_regf] + (p->right->state).cost[nt_regf] + 1;
-	if(c < (p->state).cost[nt_regf]){
-		(p->state).cost[nt_regf] = c;
-		(p->state).rule[nt_regf] = 11;
-	}
-}
-if(op=="MINUS"){
-	c=(p->left->state).cost[nt_regf] + (p->right->state).cost[nt_regf] + 1;
-	if(c < (p->state).cost[nt_regf]){
-		(p->state).cost[nt_regf] = c;
-		(p->state).rule[nt_regf] = 12;
-	}
-}
-if(op=="MULT"){
-	c=(p->left->state).cost[nt_regf] + (p->right->state).cost[nt_regf] + 1;
-	if(c < (p->state).cost[nt_regf]){
-		(p->state).cost[nt_regf] = c;
-		(p->state).rule[nt_regf] = 13;
-	}
-}
-if(op=="DIV"){
-	c=(p->left->state).cost[nt_regf] + (p->right->state).cost[nt_regf] + 1;
-	if(c < (p->state).cost[nt_regf]){
-		(p->state).cost[nt_regf] = c;
-		(p->state).rule[nt_regf] = 14;
-	}
-}
-if(op=="UMINUS"){
-	c=(p->left->state).cost[nt_regf] + 0 + 1;
-	if(c < (p->state).cost[nt_regf]){
-		(p->state).cost[nt_regf] = c;
-		(p->state).rule[nt_regf] = 15;
-	}
-}
-if(op=="LT"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
-	if(c < (p->state).cost[nt_reg]){
+	c=(p->left->state).cost[nt_reg] + 0 + 10;
+	if(p->right->node == "CON" && c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 16;
-	}
-}
-if(op=="GT"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
-	if(c < (p->state).cost[nt_reg]){
-		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 17;
-	}
-}
-if(op=="LE"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
-	if(c < (p->state).cost[nt_reg]){
-		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 18;
-	}
-}
-if(op=="GE"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
-	if(c < (p->state).cost[nt_reg]){
-		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 19;
-	}
-}
-if(op=="NE"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
-	if(c < (p->state).cost[nt_reg]){
-		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 20;
-	}
-}
-if(op=="EQ"){
-	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 1;
-	if(c < (p->state).cost[nt_reg]){
-		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 21;
+		(p->state).rule[nt_reg] = 4;
 	}
 }
 if(op=="CON"){
-	c=0 + 0 + 1;
+	c=0 + 0 + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 22;
-	}
-}
-if(op=="CONF"){
-	c=0 + 0 + 1;
-	if(c < (p->state).cost[nt_regf]){
-		(p->state).cost[nt_regf] = c;
-		(p->state).rule[nt_regf] = 23;
-	}
-}
-if(op=="FLOAT"){
-	c=(p->left->state).cost[nt_reg] + 0 + 1;
-	if(c < (p->state).cost[nt_regf]){
-		(p->state).cost[nt_regf] = c;
-		(p->state).rule[nt_regf] = 24;
-	}
-}
-if(op=="INT"){
-	c=(p->left->state).cost[nt_regf] + 0 + 1;
-	if(c < (p->state).cost[nt_reg]){
-		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 25;
+		(p->state).rule[nt_reg] = 5;
 	}
 }
 if(op=="ADDR"){
-	c=0 + 0 + 1;
+	c=0 + 0 + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 26;
-	}
-}
-if(op=="ADDR"){
-	c=0 + 0 + 1;
-	if(c < (p->state).cost[nt_regf]){
-		(p->state).cost[nt_regf] = c;
-		(p->state).rule[nt_regf] = 27;
+		(p->state).rule[nt_reg] = 6;
 	}
 }
 }
@@ -725,40 +511,32 @@ int main() {
 	initialize();
 	Tree * p;
 
-	// p = create_tree("ASSGN",
-	// 		create_tree("ADDR",NULL,NULL,"d"), 
-	// 		create_tree("PLUS", 
-	// 			create_tree("CON", NULL,NULL,"a"), 
-	// 			create_tree("CON", NULL,NULL,"b")));
 
-
-	
-p = create_tree("ASSGN",
-			create_tree("ADDR",NULL,NULL,"a"), 
+	p = create_tree("ASSGN",
+			create_tree("ADDR",NULL,NULL,"fp[10]"), 
 			create_tree("PLUS", 
-				create_tree("PLUS", 
-					create_tree("PLUS", 
-						create_tree("CON", NULL,NULL,"3"), 
-						create_tree("CON", NULL,NULL,"4")), 
-					create_tree("PLUS", 
-						create_tree("ADDR", NULL,NULL,"a"), 
-						create_tree("CON", NULL,NULL,"6"))),
-				create_tree("UMINUS",
-					create_tree("INT",
-						create_tree("FLOAT",
-							create_tree("ADDR",NULL,NULL,"af"),
-							NULL),
-						NULL),
-					NULL)));
+				create_tree("CON", NULL,NULL,"a"), 
+				create_tree("CON", NULL,NULL,"b")));
 
+
+	cout<<"The numbering of nodes for instruction selection"<<endl;
 	label(p);
-	cout<<"labelled"<<endl;
 	print(p);
+	cout<<endl;
+
+	cout<<"Instructions selected at each node"<<endl;
 	pick_instr(p,begin_nt);
 	printin(p);
+	cout<<endl;
+
+	cout<<"Sethi Ullman numbering of each node along with the requirement of store(rightnost numbers)"<<endl;
 	su_number(p);
 	printsu(p);
+	cout<<endl;
+
+	cout<<"Code generated is "<<endl;
 	gencode(p);
+	cout<<endl;
 
 	return 0;
 }
