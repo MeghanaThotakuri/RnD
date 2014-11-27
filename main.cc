@@ -696,7 +696,7 @@ cout<<"}\n\n\n";
 void emitmain()
 {
 	cout<<"int main() {\n\t	initialize();\n\tTree * p;\n\t p = create_tree(... , ... , ...);";
-	cout<<"\n\tlabel(p);\n\tpick_instr(p,begin_nt);\n\treturn 0;\n}\n";
+	cout<<"\n\tlabel(p);\n\tpick_instr(p,begin_nt);\n\tsu_number(p);\n\tgencode(p);\n\treturn 0;\n}\n";
 }
 
 
