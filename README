@@ -1,1 +1,51 @@
+<<<<<<< HEAD
   
+=======
+
+To create the burg executable, simply use command "make"
+an executable by name burg is created
+
+write input grammer into a file and to generator code generator for it
+use command $./burg < input_file_name > outputfilename.cpp
+
+the code required is generated in outputfilename.cpp 
+
+before running it modify the main (for now copy the last few functions from try2.cpp 
+                    [all functions below gencode() replace the main of the outputfile with these functions])
+
+and compile and execute it as normal cpp file.
+  
+  
+  
+  
+  
+  
+TODO :
+
+comments // accept comments from input file
+wrong inputs  // handle wrong inputs : currently segmentation fault occurs
+
+I/O through files and command arguments 
+
+
+
+memory locations of store ??
+create an api : assume the api creates a variable and gives back to you
+
+
+register allocation :: should i maintain order ??
+nothing specific
+
+
+values taken by nonterminals ambiguous
+
+
+cycles in nonterminal closures ??
+factor multiply
+
+SU numbering in case of closures ??
+
+SU numbering for mutiple nt cases
+
+if 2 nt's need to be stored at a nt. ??
+>>>>>>> ed41f67e23061dd5068bd5cee02ab1904a4298c5
