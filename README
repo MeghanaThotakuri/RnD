@@ -1,14 +1,24 @@
 
-To create the burg executable, simply use command "make"
-an executable by name burg is created
+Running the project ::
+------------------------
 
-write input grammer into a file and to generator code generator for it
-use command $./burg < input_file_name > outputfilename.cpp
+firstly compile the project files to generate an executable using the command
 
-the code required is generated in outputfilename.cpp 
+$make 
 
-before running it modify the main (for now copy the last few functions from try2.cpp 
-                    [all functions below gencode() replace the main of the outputfile with these functions])
+An executable of name "burg" is formed
 
-and compile and execute it as normal cpp file.
-  
+The run it with an input grammar
+
+$./burg < inputfilename > outputfilename.cpp
+
+specify the path in case the input file is not in the same directory.
+
+Now in the output file give the input tree and copy the debugging functions from file "(sample cases)\testing data"
+copy everything from the file and reply the main function at the end in the output file by the copied stuff
+
+Modify the input tree as required and then compile it and execute
+
+$g++ outputfilename.cpp
+$./a.out
+
