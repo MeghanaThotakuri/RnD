@@ -76,10 +76,12 @@ string a_terminal[] =
 
 int a_nt_values_count[]=
 {
-	0, 	0, 	10, 
+	0, 	2, 	10, 
 };
 void fill_nonterminals(){
 	nonterminal_values.resize(nonterms+1);
+	nonterminal_values[1].push("s2");
+	nonterminal_values[1].push("s1");
 	nonterminal_values[2].push("r10");
 	nonterminal_values[2].push("r9");
 	nonterminal_values[2].push("r8");
@@ -98,6 +100,8 @@ void fill_instructions(){
 	create_instruction("imm_load", (assembly_format)2,"li");
 	create_instruction("load", (assembly_format)2,"lw");
 	create_instruction("no_instruction", (assembly_format)4,"n");
+	create_instruction("random", (assembly_format)2,"rand");
+	create_instruction("random1", (assembly_format)3,"rand1");
 	create_instruction("store", (assembly_format)2,"sw");
 	create_instruction("sub", (assembly_format)3,"sub");
 }
@@ -123,12 +127,13 @@ return r;
 void fill_rules(){
 	Rule strt;
 	rules.push_back(strt);
-	rules.push_back(create_rule("stmt",*create_tree("ASSGN",create_tree("ADDR"),create_tree("reg")),1,10,"store",(Order)5));
-	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("reg")),2,10,"add",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("MINUS",create_tree("reg"),create_tree("reg")),3,10,"sub",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("CON")),4,10,"addi",(Order)0));
-	rules.push_back(create_rule("reg",*create_tree("CON"),5,10,"imm_load",(Order)6));
-	rules.push_back(create_rule("reg",*create_tree("ADDR"),6,10,"load",(Order)6));
+	rules.push_back(create_rule("stmt",*create_tree("ASSGN",create_tree("stmt"),create_tree("reg")),1,10,"random1",(Order)0));
+	rules.push_back(create_rule("stmt",*create_tree("reg"),2,10,"random",(Order)2));
+	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("reg")),3,10,"add",(Order)0));
+	rules.push_back(create_rule("reg",*create_tree("MINUS",create_tree("reg"),create_tree("reg")),4,10,"sub",(Order)0));
+	rules.push_back(create_rule("reg",*create_tree("PLUS",create_tree("reg"),create_tree("CON")),5,10,"addi",(Order)0));
+	rules.push_back(create_rule("reg",*create_tree("CON"),6,10,"imm_load",(Order)6));
+	rules.push_back(create_rule("reg",*create_tree("ADDR"),7,10,"load",(Order)6));
 }
 
 void initialize(){
@@ -140,6 +145,14 @@ for (int i = 1; i <= nonterms; ++i)	nonterminal_map.insert(make_pair(a_nontermin
 	fill_instructions();
 }
 
+void closure_reg(State *);
+
+void closure_reg(State * st){
+	 if(st->cost[nt_reg]+10 < st->cost[nt_stmt]){
+		 st->cost[nt_stmt] = st->cost[nt_reg]+10;
+		 st->rule[nt_stmt] = 2;
+	}
+}
 
 
 void state_label(Tree * p){
@@ -149,45 +162,57 @@ string op = p->node;
 int c;
 
 if(op=="ASSGN"){
-	c=0 + (p->right->state).cost[nt_reg] + 10;
-	if(p->left->node == "ADDR" && c < (p->state).cost[nt_stmt]){
+	c=(p->left->state).cost[nt_stmt] + (p->right->state).cost[nt_reg] + 10;
+	if(c < (p->state).cost[nt_stmt]){
 		(p->state).cost[nt_stmt] = c;
 		(p->state).rule[nt_stmt] = 1;
+	}
+}
+if(op=="reg"){
+	c=0 + 0 + 10;
+	if(c < (p->state).cost[nt_stmt]){
+		(p->state).cost[nt_stmt] = c;
+		(p->state).rule[nt_stmt] = 2;
 	}
 }
 if(op=="PLUS"){
 	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 2;
+		(p->state).rule[nt_reg] = 3;
+		closure_reg(&p->state);
 	}
 }
 if(op=="MINUS"){
 	c=(p->left->state).cost[nt_reg] + (p->right->state).cost[nt_reg] + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 3;
+		(p->state).rule[nt_reg] = 4;
+		closure_reg(&p->state);
 	}
 }
 if(op=="PLUS"){
 	c=(p->left->state).cost[nt_reg] + 0 + 10;
 	if(p->right->node == "CON" && c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 4;
+		(p->state).rule[nt_reg] = 5;
+		closure_reg(&p->state);
 	}
 }
 if(op=="CON"){
 	c=0 + 0 + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 5;
+		(p->state).rule[nt_reg] = 6;
+		closure_reg(&p->state);
 	}
 }
 if(op=="ADDR"){
 	c=0 + 0 + 10;
 	if(c < (p->state).cost[nt_reg]){
 		(p->state).cost[nt_reg] = c;
-		(p->state).rule[nt_reg] = 6;
+		(p->state).rule[nt_reg] = 7;
+		closure_reg(&p->state);
 	}
 }
 }
@@ -280,9 +305,9 @@ void release_nt_val(string val, string nt_type)
 
 void gencode1(Tree * p)
 {
-	if(p==NULL) return;
 	bool startone = true;
 	int rno=0;
+	if(p==NULL) return;
 	else if(p->picked_instruction.empty()) {p->result = p->value; p->code_generated=true; return;}
 	else if(p->result_computed_by_store == true){
 		string res_val = get_val(rules[*(p->picked_instruction.begin())].lhs);
@@ -304,7 +329,7 @@ void gencode1(Tree * p)
 				gencode1(p->right);
 				if(r.pattern.right != NULL && isnonterminal(r.pattern.right->node))
 					release_nt_val(p->right->result, r.pattern.right->node); 
-				if(r.instr == "no_instruction"){ p->result = p->value; return;}
+					if(r.instr == "no_instruction"){ p->result = p->value; return;}
 				cout<<instruction_map[r.instr].assembly_mnemonic<<endl;
 				p->result="";
 			}
@@ -511,12 +536,51 @@ int main() {
 	initialize();
 	Tree * p;
 
-
 	p = create_tree("ASSGN",
 			create_tree("ADDR",NULL,NULL,"fp[10]"), 
 			create_tree("PLUS", 
-				create_tree("CON", NULL,NULL,"a"), 
-				create_tree("CON", NULL,NULL,"b")));
+				create_tree("PLUS", 
+					create_tree("PLUS", 
+						create_tree("CON", NULL,NULL,"a"), 
+						create_tree("CON", NULL,NULL,"b")), 
+					create_tree("PLUS", 
+						create_tree("CON", NULL,NULL,"c"), 
+						create_tree("CON", NULL,NULL,"d"))),
+				create_tree("PLUS", 
+					create_tree("PLUS", 
+						create_tree("CON", NULL,NULL,"e"), 
+						create_tree("CON", NULL,NULL,"f")), 
+					create_tree("PLUS", 
+						create_tree("CON", NULL,NULL,"g"), 
+						create_tree("CON", NULL,NULL,"h")))));
+
+
+	// p = create_tree("ASSGN",
+	// 		create_tree("ADDR",NULL,NULL,"d"), 
+	// 		create_tree("PLUS", 
+	// 			create_tree("CON", NULL,NULL,"a"), 
+	// 			create_tree("CON", NULL,NULL,"b")));
+
+
+	
+// p = create_tree("ASSGN",
+// 			create_tree("ADDR",NULL,NULL,"a"), 
+// 			create_tree("PLUS", 
+// 				create_tree("PLUS", 
+// 					create_tree("PLUS", 
+// 						create_tree("CON", NULL,NULL,"3"), 
+// 						create_tree("CON", NULL,NULL,"4")), 
+// 					create_tree("PLUS", 
+// 						create_tree("ADDR", NULL,NULL,"a"), 
+// 						create_tree("CON", NULL,NULL,"6"))),
+// 				create_tree("UMINUS",
+// 					create_tree("INT",
+// 						create_tree("FLOAT",
+// 							create_tree("ADDR",NULL,NULL,"af"),
+// 							NULL),
+// 						NULL),
+// 					NULL)));
+
 
 
 	cout<<"The numbering of nodes for instruction selection"<<endl;

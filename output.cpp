@@ -283,6 +283,7 @@ void gencode1(Tree * p)
 	if(p==NULL) return;
 	bool startone = true;
 	int rno=0;
+	if(p==NULL) return;
 	else if(p->picked_instruction.empty()) {p->result = p->value; p->code_generated=true; return;}
 	else if(p->result_computed_by_store == true){
 		string res_val = get_val(rules[*(p->picked_instruction.begin())].lhs);
@@ -304,7 +305,6 @@ void gencode1(Tree * p)
 				gencode1(p->right);
 				if(r.pattern.right != NULL && isnonterminal(r.pattern.right->node))
 					release_nt_val(p->right->result, r.pattern.right->node); 
-				if(r.instr == "no_instruction"){ p->result = p->value; return;}
 				cout<<instruction_map[r.instr].assembly_mnemonic<<endl;
 				p->result="";
 			}
@@ -466,77 +466,13 @@ void gencode(Tree * p)
 }
 
 
-void print(Tree * p)
-{
-	if(p==NULL) return;
-	cout<<(p->state).cost[0]<<" "<<(p->state).cost[1]<<" "<<(p->state).cost[2];
-	cout<<"\t"<<(p->state).rule[0]<<" "<<(p->state).rule[1]<<" "<<(p->state).rule[2]<<endl;
-	print(p->left);
-	print(p->right);
-}
-
-
-void printin(Tree * p)
-{
-	if(p==NULL) return;
-	cout<<p->node<<"\t";
-	for (std::list<int>::iterator i = p->picked_instruction.begin(); i != p->picked_instruction.end(); ++i)
-	{
-		cout<<*i<<" ";
-	}
-	cout<<endl;
-	printin(p->left);
-	printin(p->right);
-}
-
-void printsu(Tree * p)
-{
-	if(p==NULL) return;
-	cout<<p->node<<"\t";
-	for (int i = 1; i <= nonterms; ++i)
-	{
-		cout<<" "<<p->nt_reqd[i];
-	}
-	cout<<"\t\t";
-	for (int i = 1; i <= nonterms; ++i)
-	{
-		cout<<" "<<p->store_reqd[i];
-	}
-	cout<<endl;
-	printsu(p->left);
-	printsu(p->right);
-}
-
 int main() {
-	initialize();
+		initialize();
 	Tree * p;
-
-
-	p = create_tree("ASSGN",
-			create_tree("ADDR",NULL,NULL,"fp[10]"), 
-			create_tree("PLUS", 
-				create_tree("CON", NULL,NULL,"a"), 
-				create_tree("CON", NULL,NULL,"b")));
-
-
-	cout<<"The numbering of nodes for instruction selection"<<endl;
+	 p = create_tree(... , ... , ...);
 	label(p);
-	print(p);
-	cout<<endl;
-
-	cout<<"Instructions selected at each node"<<endl;
 	pick_instr(p,begin_nt);
-	printin(p);
-	cout<<endl;
-
-	cout<<"Sethi Ullman numbering of each node along with the requirement of store(rightnost numbers)"<<endl;
 	su_number(p);
-	printsu(p);
-	cout<<endl;
-
-	cout<<"Code generated is "<<endl;
 	gencode(p);
-	cout<<endl;
-
 	return 0;
 }

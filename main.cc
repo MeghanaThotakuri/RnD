@@ -67,6 +67,8 @@ void add_terminal(string t_name)
 
 void add_nonterminal(string t_name, std::vector<string> t_values)
 {
+	if(nonterminal_map.count(t_name) != 0)
+		{nonterminal_map[t_name].values = t_values; return;}
 	Nonterminal nonterm;
 	nonterm.name = t_name;
 	non_terminal_count++;
@@ -506,7 +508,6 @@ cout<<"}\n";
 cout<<"\n";
 cout<<"void gencode1(Tree * p)\n";
 cout<<"{\n";
-cout<<"\tif(p==NULL) return;\n";
 cout<<"\tbool startone = true;\n";
 cout<<"\tint rno=0;\n";
 cout<<"\tif(p==NULL) return;\n";
@@ -531,6 +532,7 @@ cout<<"\t\t\t\t\trelease_nt_val(p->left->result, r.pattern.left->node); \n";
 cout<<"\t\t\t\tgencode1(p->right);\n";
 cout<<"\t\t\t\tif(r.pattern.right != NULL && isnonterminal(r.pattern.right->node))\n";
 cout<<"\t\t\t\t\trelease_nt_val(p->right->result, r.pattern.right->node); \n";
+cout<<"\t\t\t\t\tif(r.instr == \"no_instruction\"){ p->result = p->value; return;}\n";
 cout<<"\t\t\t\tcout<<instruction_map[r.instr].assembly_mnemonic<<endl;\n";
 cout<<"\t\t\t\tp->result=\"\";\n";
 cout<<"\t\t\t}\n";
@@ -704,7 +706,6 @@ int main()
 {
 	non_terminal_count = 0;
 	terminal_count = 0;
-
 	rule_count = 0;
 
 	Parser simcalc;

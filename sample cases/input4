@@ -1,0 +1,36 @@
+%%		
+	no_instruction
+	load
+	imm_load
+	store
+  	add
+  	addi
+  	sub
+  	random
+  	random1
+ %%
+	no_instruction  =	op_nsy, n 
+	load =   			op_r_o1, lw
+	imm_load =		    op_r_o1, li
+	store =   			op_r_o1, sw
+	add =    			op_r_o1_o2, add
+	addi =    			op_r_o1_o2, addi
+	sub =    			op_r_o1_o2, sub
+	random =    		op_r_o1, rand
+	random1 =    		op_r_o1_o2, rand1
+
+%%
+	stmt = BEGIN
+	stmt = {s1,s2}
+	reg = {r1,r2,r3,r4,r5,r6,r7,r8,r9,r10}
+%%
+	ASSGN, PLUS, MINUS, MULT, DIV, CON, ADDR
+%%
+	stmt: ASSGN(stmt,reg)	= (1)	{random1, $$, $1, $2}
+	stmt:reg	= (1) 			{random, $$,$1}
+	reg: PLUS(reg,reg)	= (1)	{add, $$,$1,$2}
+	reg: MINUS(reg,reg)	= (1)	{sub, $$,$1,$2}
+	reg: PLUS(reg,CON) = (1)	{addi, $$,$1,$2}
+	reg: CON 	= (1)		{imm_load, $$, $0}
+	reg: ADDR 		= (1)	{load, $$, $0}
+%%

@@ -42,7 +42,7 @@
 	sle =    			op_r_o1_o2, sle
 	seq =    			op_r_o1_o2, seq
 	sne =    			op_r_o1_o2, sne
-	if_else =    		op_r_o1, bne
+	if_else =    		op_r_o1, bnez
 	goto_type =    		op_r, j
 	add =    			op_r_o1_o2, add
 	sub =    			op_r_o1_o2, sub
